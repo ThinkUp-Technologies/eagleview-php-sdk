@@ -105,3 +105,5 @@ $eagleView = EagleView::withToken($token, $sourceId, $clientSecret);
 // Nice, you are ready make API calls
 $products = $eagleView->getAvailableProducts();
 ```
+
+_More documentation to come..._
