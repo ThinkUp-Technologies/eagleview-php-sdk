@@ -3,6 +3,11 @@
 namespace ThinkUp\EagleView\Actions;
 
 use Exception;
+use GuzzleHttp\Exception\GuzzleException;
+use ThinkUp\EagleView\Exceptions\ApiServerException;
+use ThinkUp\EagleView\Exceptions\FailedActionException;
+use ThinkUp\EagleView\Exceptions\NotFoundException;
+use ThinkUp\EagleView\Exceptions\ValidationException;
 use ThinkUp\EagleView\Resources\Token;
 
 trait ManagesTokens
@@ -15,9 +20,13 @@ trait ManagesTokens
      * @param string $sourceId Unique identifier provided by EagleView Integration team.
      * @param string $clientSecret Unique secret provided by EagleView Integration team.
      * @return Token
-     * @throws Exception
+     * @throws GuzzleException
+     * @throws ApiServerException
+     * @throws FailedActionException
+     * @throws NotFoundException
+     * @throws ValidationException
      */
-    public function createToken(string $username, string $password, string $sourceId, string $clientSecret)
+    public function createToken(string $username, string $password, string $sourceId, string $clientSecret): Token
     {
         $basicAuth = base64_encode($sourceId . ':' . $clientSecret);
 
@@ -42,9 +51,13 @@ trait ManagesTokens
      * @param string $sourceId Unique identifier provided by EagleView Integration team.
      * @param string $clientSecret Unique secret provided by EagleView Integration team.
      * @return Token
-     * @throws Exception
+     * @throws ApiServerException
+     * @throws FailedActionException
+     * @throws GuzzleException
+     * @throws NotFoundException
+     * @throws ValidationException
      */
-    public function refreshToken(string $refreshToken, string $sourceId, string $clientSecret)
+    public function refreshToken(string $refreshToken, string $sourceId, string $clientSecret): Token
     {
         $basicAuth = base64_encode($sourceId . ':' . $clientSecret);
 

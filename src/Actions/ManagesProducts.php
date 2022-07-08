@@ -2,7 +2,11 @@
 
 namespace ThinkUp\EagleView\Actions;
 
-use Exception;
+use GuzzleHttp\Exception\GuzzleException;
+use ThinkUp\EagleView\Exceptions\ApiServerException;
+use ThinkUp\EagleView\Exceptions\FailedActionException;
+use ThinkUp\EagleView\Exceptions\NotFoundException;
+use ThinkUp\EagleView\Exceptions\ValidationException;
 use ThinkUp\EagleView\Resources\Product;
 
 trait ManagesProducts
@@ -14,8 +18,13 @@ trait ManagesProducts
      * This method is optional if it is already known which products are
      * enabled on the authenticating user's account.
      *
+     * @param array|null $parameters
      * @return array<Product>
-     * @throws Exception
+     * @throws GuzzleException
+     * @throws ApiServerException
+     * @throws FailedActionException
+     * @throws NotFoundException
+     * @throws ValidationException
      */
     public function getAvailableProducts(?array $parameters = [])
     {

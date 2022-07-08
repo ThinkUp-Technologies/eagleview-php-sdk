@@ -103,6 +103,11 @@ class Resource
     protected function standardizedFillMethodName(string $property): string
     {
         $property = ucwords($property);
+        $property = str_replace('-', ' ', $property);
+        $property = str_replace('_', ' ', $property);
+        $property = preg_replace('/[^A-Za-z0-9\-]/', ' ', $property);
+        $property = ucwords($property);
+        $property = str_replace(' ', '', $property);
 
         return 'fill' . $property . 'Attribute';
     }

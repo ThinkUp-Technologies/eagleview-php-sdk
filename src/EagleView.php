@@ -2,9 +2,8 @@
 
 namespace ThinkUp\EagleView;
 
-use Carbon\Carbon;
-use Exception;
 use GuzzleHttp\Client as HttpClient;
+use GuzzleHttp\Exception\GuzzleException;
 use ThinkUp\EagleView\Actions;
 use ThinkUp\EagleView\Resources\Token;
 
@@ -70,7 +69,11 @@ class EagleView
      * @param string $clientSecret Unique secret provided by EagleView Integration team.
      * @param string|null $endpoint Base endpoint to use for all API calls. Defaults to test environment.
      * @return static
-     * @throws Exception
+     * @throws Exceptions\ApiServerException
+     * @throws Exceptions\FailedActionException
+     * @throws Exceptions\NotFoundException
+     * @throws Exceptions\ValidationException
+     * @throws GuzzleException
      */
     public static function login(string $username, string $password, string $sourceId, string $clientSecret, ?string $endpoint = null): self
     {
@@ -78,21 +81,31 @@ class EagleView
 
         $token = $eagleView->createToken($username, $password, $sourceId, $clientSecret);
 
-        return static::withToken($token, $endpoint);
+        return static::withToken($token, $sourceId, $clientSecret, $endpoint);
     }
 
     /**
      * Create a new EagleView SDK instance with the given token instance.
      *
-     * @param Token $token
+     * @param Token $token A Token resource instance. See Token::create().
+     * @param string $sourceId Unique identifier provided by EagleView Integration team.
+     * @param string $clientSecret Unique secret provided by EagleView Integration team.
      * @param string|null $endpoint Base endpoint to use for all API calls. Defaults to test environment.
      * @return static
+     * @throws Exceptions\ApiServerException
+     * @throws Exceptions\FailedActionException
+     * @throws Exceptions\NotFoundException
+     * @throws Exceptions\ValidationException
+     * @throws GuzzleException
      */
-    public static function withToken(Token $token, ?string $endpoint = null): self
+    public static function withToken(Token $token, string $sourceId, string $clientSecret, ?string $endpoint = null): self
     {
         $eagleView = new self($endpoint);
-
         $eagleView->token = $token;
+
+        if ($eagleView->token->needsRefresh()) {
+            $eagleView->token = $eagleView->refreshToken($token->refresh_token, $sourceId, $clientSecret);
+        }
 
         $eagleView->guzzle = new HttpClient([
             'base_uri' => $eagleView->endpoint,
@@ -108,9 +121,11 @@ class EagleView
     }
 
     /**
-     * Create a new EagleView SDK instance with the given access token (bearer token).
+     * Create a new EagleView SDK instance with just a raw access token.
      *
-     * @param string $token
+     * This method does not check if the provided access token has expired.
+     *
+     * @param string $token The string value of the access token.
      * @param string|null $endpoint Base endpoint to use for all API calls. Defaults to test environment.
      * @return static
      */
@@ -129,20 +144,6 @@ class EagleView
         ]);
 
         return $eagleView;
-    }
-
-    /**
-     * Determines if the current token being used is expired or is about to expire.
-     *
-     * @return bool
-     */
-    public function isTokenExpired(): bool
-    {
-        if (is_null($this->token)) {
-            return true;
-        }
-
-//        Carbon::parse()
     }
 
     /**
