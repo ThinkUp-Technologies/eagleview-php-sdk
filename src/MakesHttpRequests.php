@@ -102,6 +102,10 @@ trait MakesHttpRequests
             }
         }
 
+        if ($this->token && ($uri !== 'Token') && $this->needsTokenRefresh()) {
+            $this->token = $this->refreshToken();
+        }
+
         $response = $this->guzzle->request($verb, $uri, $payload);
 
         $statusCode = $response->getStatusCode();

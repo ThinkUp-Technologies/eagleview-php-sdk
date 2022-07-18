@@ -2,7 +2,6 @@
 
 namespace ThinkUp\EagleView\Actions;
 
-use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use ThinkUp\EagleView\Exceptions\ApiServerException;
 use ThinkUp\EagleView\Exceptions\FailedActionException;
@@ -17,21 +16,25 @@ trait ManagesTokens
      *
      * @param string $username Email address used to log in to EagleView website.
      * @param string $password Password used to log in to EagleView website.
-     * @param string $sourceId Unique identifier provided by EagleView Integration team.
-     * @param string $clientSecret Unique secret provided by EagleView Integration team.
+     * @param string|null $sourceId Unique identifier provided by EagleView Integration team.
+     * @param string|null $clientSecret Unique secret provided by EagleView Integration team.
      * @return Token
-     * @throws GuzzleException
      * @throws ApiServerException
      * @throws FailedActionException
+     * @throws GuzzleException
      * @throws NotFoundException
      * @throws ValidationException
      */
-    public function createToken(string $username, string $password, string $sourceId, string $clientSecret): Token
+    public function createToken(string $username, string $password, ?string $sourceId = null, ?string $clientSecret = null): Token
     {
+        $sourceId = $sourceId ?? $this->sourceId;
+        $clientSecret = $clientSecret ?? $this->clientSecret;
+
         $basicAuth = base64_encode($sourceId . ':' . $clientSecret);
 
         $response = $this->post('Token', [
             'headers' => [
+                'Content-Type' => 'application/x-www-form-urlencoded',
                 'Authorization' => 'Basic ' . $basicAuth,
             ],
             'form_params' => [
@@ -41,15 +44,15 @@ trait ManagesTokens
             ]
         ]);
 
-        return new Token($response, $this);
+        return new Token($response);
     }
 
     /**
      * Re-fetch a new access token (bearer token) using a refresh token.
      *
-     * @param string $refreshToken The refresh token to use for re-fetching a new access token.
-     * @param string $sourceId Unique identifier provided by EagleView Integration team.
-     * @param string $clientSecret Unique secret provided by EagleView Integration team.
+     * @param string|null $refreshToken The refresh token to use for re-fetching a new access token.
+     * @param string|null $sourceId Unique identifier provided by EagleView Integration team.
+     * @param string|null $clientSecret Unique secret provided by EagleView Integration team.
      * @return Token
      * @throws ApiServerException
      * @throws FailedActionException
@@ -57,12 +60,17 @@ trait ManagesTokens
      * @throws NotFoundException
      * @throws ValidationException
      */
-    public function refreshToken(string $refreshToken, string $sourceId, string $clientSecret): Token
+    public function refreshToken(?string $refreshToken = null, ?string $sourceId = null, ?string $clientSecret = null): Token
     {
+        $refreshToken = $refreshToken ?? $this->token->refresh_token;
+        $sourceId = $sourceId ?? $this->sourceId;
+        $clientSecret = $clientSecret ?? $this->clientSecret;
+
         $basicAuth = base64_encode($sourceId . ':' . $clientSecret);
 
         $response = $this->post('Token', [
             'headers' => [
+                'Content-Type' => 'application/x-www-form-urlencoded',
                 'Authorization' => 'Basic ' . $basicAuth,
             ],
             'form_params' => [
@@ -71,6 +79,6 @@ trait ManagesTokens
             ]
         ]);
 
-        return new Token($response, $this);
+        return new Token($response);
     }
 }

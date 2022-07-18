@@ -63,16 +63,6 @@ class Token extends Resource
     }
 
     /**
-     * Determine if the token needs to be refreshed.
-     *
-     * @return bool
-     */
-    public function needsRefresh(): bool
-    {
-        return Carbon::now()->subSeconds(30)->gt(Carbon::parse($this->expires_at));
-    }
-
-    /**
      * Defines how to fill the "issued_at" property on our Token class.
      *
      * @param string $datetime

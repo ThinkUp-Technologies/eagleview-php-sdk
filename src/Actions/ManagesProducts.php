@@ -18,7 +18,7 @@ trait ManagesProducts
      * This method is optional if it is already known which products are
      * enabled on the authenticating user's account.
      *
-     * @param array|null $parameters
+     * @param array|null $parameters Any additional parameters you want to pass.
      * @return array<Product>
      * @throws GuzzleException
      * @throws ApiServerException
@@ -26,7 +26,7 @@ trait ManagesProducts
      * @throws NotFoundException
      * @throws ValidationException
      */
-    public function getAvailableProducts(?array $parameters = [])
+    public function getAvailableProducts(?array $parameters = []): array
     {
         return $this->transformCollection(
             $this->get('v2/Product/GetAvailableProducts', $parameters), Product::class

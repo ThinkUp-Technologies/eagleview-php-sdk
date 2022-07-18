@@ -15,18 +15,22 @@ use ThinkUp\EagleView\EagleView;
 $eagleView = EagleView::withRawToken('your-access-token');
 
 // Get available products
-$products = $eagleView->getAvailableProducts();
-$products[0]->name;                         // EagleView Inform Essentials+
-$products[0]->description;                  // Inform Essentials+
-$products[0]->isTemporarilyUnavailable;     // false
-$products[0]->deliveryProducts[1]->name;    // Express
+$products = $eagleView->getAvailableProducts(); // array of "ThinkUp\EagleView\Resources\Product" objects
+
+// Access what you need
+$products[0]->name;                             // EagleView Inform Essentials+
+$products[0]->description;                      // Inform Essentials+
+$products[0]->isTemporarilyUnavailable;         // false
+$products[0]->deliveryProducts[1]->name;        // Express
 ```
+
+This SDK has been built and documented in such a way that your IDE should provide autocomplete functionality as you build your integration.
 
 ## Documentation
 
 ### Requirements
 
-PHP 7.2 or greater
+Just PHP 7.2 or greater and composer, so you can install this SDK.
 
 ### Installation
 
@@ -58,11 +62,11 @@ $endpoint = 'https://webservices-integrations.eagleview.com';
 $eagleView = EagleView::login($username, $password, $sourceId, $clientSecret, $endpoint);
 ```
 
-This will create a new SDK instance and route all api calls to "https://webservices-integrations.eagleview.com". You are not required to provide an `$endpoint` and by default, the SDK will use the above URL. If you attempt to log in with invalid authentication details, an exception will be thrown.
+This will create a new SDK instance and route all api calls to "https://webservices-integrations.eagleview.com". You are not required to provide an `$endpoint` value and by default, the SDK will use the above URL. If you attempt to log in with invalid authentication details, an exception will be thrown.
 
 At this point, you are ready to make calls to EagleView's REST API. But before you do, keep reading to make sure you understand how to properly upkeep the connection you just made.
 
-**IMPORTANT**: You should not be logging in everytime you need to make an API call or consume resources from EagleView. The above is meant to be the initial login only and should be unique to whatever primary resource integrates with EagleView. In most cases that's your users, companies or equivalent.
+**IMPORTANT**: You should not be logging in on every request lifecycle or everytime you need to make an API call or consume resources from EagleView. The above is meant to be the initial login only and should be unique to whatever primary resource integrates with EagleView. In most cases that's your users, companies or equivalent.
 
 #### Storing Token Details
 
@@ -71,14 +75,14 @@ Once you have established a successful, **initial** connection, you should store
 ```php
 // Store the following on your end per user, company, etc.
 $accessToken = $eagleView->token->access_token      // string: Primary token that's used for accessing the API
-$refreshToken = $eagleView->token->refresh_token    // string: Refresh token that's used to fetch new access token
+$refreshToken = $eagleView->token->refresh_token    // string: Refresh token that's used to fetch new access tokens
 $issuedAt = $eagleView->token->issued_at            // string: Datetime UTC string of when the token was issued
 $expiresAt = $eagleView->token->expires_at          // string: Datetime UTC string of when the token will expire
 ```
 
 You should store `$accessToken`, `$refreshToken`, `$issuedAt`, and `$expiresAt` on your end so that you can retrieve them later.
 
-#### Using Stored Tokens
+#### Using Stored Token Details
 
 To reuse the token details you stored above, you will need to retrieve them from your storage system and re-establish a connection with EagleView like so:
 
@@ -86,7 +90,7 @@ To reuse the token details you stored above, you will need to retrieve them from
 use ThinkUp\EagleView\EagleView;
 use ThinkUp\EagleView\Resources\Token;
 
-// Retrieve these four values from your storage
+// Retrieve these four values from your database or storage system
 $accessToken = 'the-access-token-you-stored';
 $refreshToken = 'the-refresh-token-you-stored';
 $issuedAt = 'the-issued-at-datetime-you-stored';
@@ -104,6 +108,43 @@ $eagleView = EagleView::withToken($token, $sourceId, $clientSecret);
 
 // Nice, you are ready make API calls
 $products = $eagleView->getAvailableProducts();
+```
+
+If your token has expired or is about to expire, the SDK will automatically renew it for you. However, you should still check to see if a new token has been issued by comparing the `$eagleView->token` object with what's stored on your end and [update the stored details with fresh values](#storing-token-details).
+
+#### Manually Managing Tokens
+
+If you'd rather handle authentication and the creating, refreshing and manging of tokens yourself and simply just want to consume EagleView's API via the SDK, that's fine too. All you will need to do is provide an access token (bearer token) to the SDK.
+
+```php
+use ThinkUp\EagleView\EagleView;
+
+// Create a connection to EagleView with just a bearer token
+$eagleView = EagleView::withRawToken('your-access-token');
+
+// Done. Make your API calls.
+$products = $eagleView->getAvailableProducts();
+```
+
+Keep in mind that with this approach the SDK will not be able to refresh your token once it expires. That will be your responsibility. Additionally, the SDK provides a public method for refreshing tokens if you'd like to use that rather than rolling your own implementation.
+
+### Basic Usage
+
+As mentioned earlier, the SDK is self documenting and most IDEs will provide autocomplete for you as work with the SDK. Even so, below you will find basic examples and how to access the resources you need.
+
+#### Get Available Products
+
+See [GET v2/Product/GetAvailableProducts](https://restdoc.eagleview.com/#GetAvailableProducts) for more info.
+
+```php
+// Get available products
+$products = $eagleView->getAvailableProducts(); // array of "ThinkUp\EagleView\Resources\Product" objects
+
+// Access what you need
+$products[0]->name;                             // EagleView Inform Essentials+
+$products[0]->description;                      // Inform Essentials+
+$products[0]->isTemporarilyUnavailable;         // false
+$products[0]->deliveryProducts[1]->name;        // Express
 ```
 
 _More documentation to come..._
