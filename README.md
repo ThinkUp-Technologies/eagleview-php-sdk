@@ -164,4 +164,37 @@ $response['ReportIds'][0]   // 123456
 $response['ReportIds'][1]   // 123457
 ```
 
+#### Get Report
+
+See [POST v2/Report/GetReport](https://restdoc.eagleview.com/#GetReport) for more info.
+
+```php
+// The ID of the report you would like to get...
+$reportId = 49827746;
+
+// Get the report...
+$report = $eagleView->getReport($reportId);
+
+// Access what you need
+$report['Street'];      // 52 Mapl'e Ave
+$report['City']         // Annandale
+$report['Status']       // In Process
+```
+
+#### Get Report File
+
+See [POST v1/File/GetReportFile](https://restdoc.eagleview.com/#GetReportFile) for more info.
+
+```php
+$reportId = 49827746;   // The ID of the report you would like to get...
+$fileType = 2;          // Code to specify the file type for the report (invoice, top image, etc.)
+$fileFormat = 2;        // Code to specify the file format for the report (pdf, json, etc.)
+
+// Get the report file raw contents...
+$reportData = $eagleView->getReportFile($reportId, $fileType, $fileFormat);
+
+// Save the report to a local file...
+file_put_contents('my-awesome-report.pdf', $reportData);
+```
+
 _More documentation to come..._
