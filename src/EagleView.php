@@ -12,6 +12,7 @@ class EagleView
 {
     use MakesHttpRequests;
     use Actions\ManagesTokens;
+    use Actions\ManagesOrders;
     use Actions\ManagesProducts;
 
     /**

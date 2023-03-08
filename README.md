@@ -147,4 +147,21 @@ $products[0]->isTemporarilyUnavailable;         // false
 $products[0]->deliveryProducts[1]->name;        // Express
 ```
 
+#### Place Order
+
+See [POST v2/Order/PlaceOrder](https://restdoc.eagleview.com/#PlaceOrder) for more info.
+
+```php
+// Build your payload to have all data necessary to place the order...
+$payload = [...];
+
+// Place the order...
+$response = $eagleView->placeOrder($payload); // $response should contain an order id as well as report ids
+
+// Access what you need
+$response['OrderId'];       // 1
+$response['ReportIds'][0]   // 123456
+$response['ReportIds'][1]   // 123457
+```
+
 _More documentation to come..._
