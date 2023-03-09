@@ -55,9 +55,29 @@ trait ManagesReports
      * @throws NotFoundException
      * @throws ValidationException
      */
-    public function getReport(int $reportId): array
+    public function getReportV2(int $reportId): array
     {
         return $this->get('v2/Report/GetReport', ['reportId' => $reportId]);
+    }
+
+    /**
+     * The GetReport call will return information about a single report.
+     * Notable pieces of information include Status, ReportDownloadLink,
+     * and measurement totals.
+     *
+     * @see https://restdoc.eagleview.com/#V3GetReport
+     *
+     * @param int $reportId The id of the report to get.
+     * @return array
+     * @throws GuzzleException
+     * @throws ApiServerException
+     * @throws FailedActionException
+     * @throws NotFoundException
+     * @throws ValidationException
+     */
+    public function getReportV3(int $reportId): array
+    {
+        return $this->get('v3/Report/GetReport', ['reportId' => $reportId]);
     }
 
     /**
