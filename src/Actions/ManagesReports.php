@@ -102,10 +102,16 @@ trait ManagesReports
      */
     public function getReportFile(int $reportId, int $fileType, int $fileFormat): string
     {
-        return $this->get('v1/File/GetReportFile', [
+        $response = $this->get('v1/File/GetReportFile', [
             'reportId' => $reportId,
             'fileType' => $fileType,
             'fileFormat' => $fileFormat,
         ]);
+
+        if (is_array($response)) {
+            $response = json_encode($response);
+        }
+
+        return $response;
     }
 }
